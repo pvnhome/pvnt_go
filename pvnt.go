@@ -22,7 +22,7 @@ import (
 	"os"
 )
 
-const PVNT_VERSION = "0.9.4 beta"
+const PVNT_VERSION = "0.9.4 alfa"
 
 const (
 	PARTS_INITIAL_CAPACITY = 2
