@@ -107,5 +107,3 @@ Installation as simple as 1-2-3:
 <https://github.com/pvnhome/pvnt_go>
 * PVNT in Java Source code
 <https://github.com/pvnhome/pvnt>
-* Binary downloads 
-<https://github.com/pvnhome/pvnt_go/releases/tag/v0.9-beta.4>
