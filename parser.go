@@ -59,8 +59,6 @@ func ParsePart(file *File, part Part, text []byte) {
 	var state currentState = stateText
 
 	for pos < textLen {
-		//ch = text[pos]
-
 		switch state {
 		case stateText:
 			state = findBegTag(text, textLen, pos)
@@ -68,9 +66,9 @@ func ParsePart(file *File, part Part, text []byte) {
 				sb.WriteByte(text[pos])
 				pos++
 			} else {
-				site.printDebugMessage("  add text")
 				if sb.Len() > 0 {
-					part.AddPart(&TextPart{})
+					site.printDebugMessage("  add text")
+					part.AddPart(NewTextPart(sb.Bytes()))
 				}
 				sb.Reset()
 				pos += tagBegLen
@@ -217,11 +215,9 @@ func ParsePart(file *File, part Part, text []byte) {
 	}
 
 	if state == stateText {
-		newText := sb.Bytes()
-		if len(newText) > 0 {
-			textPart := &TextPart{}
-			textPart.SetText(newText)
-			part.AddPart(textPart)
+		if sb.Len() > 0 {
+			site.printDebugMessage("  add text")
+			part.AddPart(NewTextPart(sb.Bytes()))
 		}
 	} else {
 		sb.Reset()

@@ -24,6 +24,12 @@ type TextPart struct {
 // Main methods
 //===========================================
 
+func NewTextPart(newText []byte) *TextPart {
+	newTextPart := &TextPart{}
+	newTextPart.SetText(newText)
+	return newTextPart
+}
+
 func (t *TextPart) SetText(newText []byte) {
 	t.Text = make([]byte, len(newText))
 	copy(t.Text, newText)
