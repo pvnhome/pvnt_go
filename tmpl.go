@@ -17,6 +17,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 )
 
@@ -55,6 +56,22 @@ func (t *TmplPart) ToString() string {
 	} else {
 		return fmt.Sprintf("TMPL: file = %s", t.Id)
 	}
+}
+
+func (t *TmplPart) Write(buf *bytes.Buffer) {
+	if t.isRoot() {
+		buf.WriteString("<!--pvnTmplBeg-->")
+	} else {
+		buf.WriteString("<!--pvnTmplBeg ")
+		buf.WriteString(t.GetId())
+		buf.WriteString("-->")
+	}
+
+	for _, part := range t.Children {
+		part.Write(buf)
+	}
+
+	buf.WriteString("<!--pvnTmplEnd-->")
 }
 
 //===========================================

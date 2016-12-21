@@ -16,6 +16,10 @@
 
 package main
 
+import (
+	"bytes"
+)
+
 type TextPart struct {
 	Text []byte
 }
@@ -57,4 +61,8 @@ func (t *TextPart) ResetChildren() {
 
 func (t *TextPart) ToString() string {
 	return "TEXT"
+}
+
+func (t *TextPart) Write(buf *bytes.Buffer) {
+	buf.Write(t.Text)
 }

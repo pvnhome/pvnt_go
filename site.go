@@ -40,7 +40,7 @@ type Site struct {
 func (site *Site) Load() {
 	files, err := ioutil.ReadDir(site.Path)
 	if err != nil {
-		fmt.Println("ERROR: ", err)
+		//fmt.Println("ERROR: ", err)
 		panic(PvntError{"Can't read directory: " + site.Path})
 	}
 
@@ -54,12 +54,20 @@ func (site *Site) Load() {
 }
 
 func (site *Site) Process() {
-	fmt.Println("process")
+	for _, file := range site.Files {
+		if file.IsRoot() {
+			file.Process()
+		}
+	}
 }
 
 func (site *Site) Save() {
-	fmt.Println("save")
-	//panic(PvntError{"Can't save file (panic)"})
+	for _, file := range site.Files {
+		if !file.IsRoot() {
+			site.printDebugMessage("save file: %s", file.Path)
+			file.Save()
+		}
+	}
 }
 
 func (site *Site) AddFile(path string) *File {

@@ -16,6 +16,10 @@
 
 package main
 
+import (
+	"bytes"
+)
+
 type Part interface {
 	GetId() string
 
@@ -27,5 +31,5 @@ type Part interface {
 
 	ToString() string
 
-	//write(writer *Writer)
+	Write(buf *bytes.Buffer)
 }

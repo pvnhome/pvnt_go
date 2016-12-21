@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 )
@@ -27,6 +28,9 @@ import (
 type File struct {
 	Site *Site  // Site
 	Path string // Path to file
+
+	fileLen int         // File length
+	perm    os.FileMode // // File mode bits
 
 	Parent   *File   // Parent file
 	Children []*File // File children
@@ -48,7 +52,6 @@ func (f *File) GetId() string {
 
 func (f *File) AddPart(p Part) {
 	f.Parts = append(f.Parts, p)
-	//fmt.Printf("File.AddPart: len=%d cap=%d (%s)\n", len(f.Parts), cap(f.Parts), f.Path)
 }
 
 func (f *File) GetChildren() []Part {
@@ -65,6 +68,9 @@ func (f *File) ToString() string {
 	return fmt.Sprintf("FILE: %s", f.Path)
 }
 
+func (f *File) Write(buf *bytes.Buffer) {
+}
+
 //===========================================
 // File methods
 //===========================================
@@ -78,33 +84,33 @@ func NewFile(site *Site, name string) *File {
 }
 
 func (f *File) Load() ([]byte, error) {
-	return ioutil.ReadFile(f.Path)
+	info, err := os.Stat(f.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	f.perm = info.Mode()
+
+	content, err := ioutil.ReadFile(f.Path)
+	if err != nil {
+		return content, err
+	}
+
+	f.fileLen = len(content)
+
+	return content, nil
 }
 
 func (f *File) Save() {
-	fmt.Println("save file: ", f.Path)
+	buf := bytes.NewBuffer(make([]byte, 0, f.fileLen+f.fileLen/2))
 
-	//content := []byte("temporary file's content")
-	/*
-		dir, err := ioutil.TempDir("", "example")
-		if err != nil {
-			log.Fatal(err)
-		}
+	for _, part := range f.Parts {
+		part.Write(buf)
+	}
 
-		defer os.RemoveAll(dir) // clean up
-
-		tmpfn := filepath.Join(dir, "tmpfile")
-		if err := ioutil.WriteFile(tmpfn, content, 0666); err != nil {
-			log.Fatal(err)
-		}
-	*/
-	/*
-	   try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-	      for (Part part : getChildren()) {
-	         part.write(writer);
-	      }
-	   }
-	*/
+	if err := ioutil.WriteFile(f.Path, buf.Bytes(), f.perm); err != nil {
+		fmt.Println("ERROR: save file =", f.Path, ",", err)
+	}
 }
 
 func (f *File) GetImplIds() string {
@@ -127,7 +133,6 @@ func (f *File) IsRoot() bool {
 func (f *File) AddChild(child *File) {
 	child.Parent = f
 	f.Children = append(f.Children, child)
-	//fmt.Printf("File.AddChild: len=%d cap=%d (%s)\n", len(f.Children), cap(f.Children), f.Path)
 }
 
 func (f *File) Process() {
@@ -167,56 +172,40 @@ func (f *File) Process() {
 //===========================================
 
 func (f *File) process(templateParts []Part, currentPart Part) {
-	/*
-	   for (Part part : templateParts) {
-	      if (part instanceof TextPart) {
-	         currentPart.addPart(part);
-	      } else {
-	         if (part instanceof EditPart && implMap.containsKey(part.getId())) {
-	            ImplPart implPart = implMap.get(part.getId());
-	            implPart.setProcessed(true);
-	            currentPart.addPart(implPart);
-	         } else {
-	            if (part instanceof ImplPart) {
-	               ImplPart implPart = implMap.get(part.getId());
-	               if (implPart != null) {
-	                  implPart.setProcessed(true);
-	                  // TODO We need to compare part with implPart and we need to print message if the difference will be detected
-	               }
-	            }
+	for _, part := range templateParts {
+		if _, ok := part.(*TextPart); ok {
+			currentPart.AddPart(part)
+		} else {
+			_, isEdit := part.(*EditPart)
+			implPart, isImplFound := f.ImplMap[part.GetId()]
+			if isEdit && isImplFound {
+				implPart.Processed = true
+				currentPart.AddPart(implPart)
+			} else {
+				if _, ok := part.(*ImplPart); ok && isImplFound {
+					implPart.Processed = true
+					// TODO We need to compare part with implPart and we need to print message if the difference will be detected
+				}
 
-	            Part clonedPart = clone(part);
-	            currentPart.addPart(clonedPart);
-	            if (!part.getChildren().isEmpty()) {
-	               process(part.getChildren(), clonedPart);
-	            }
-	         }
-	      }
-	   }
-	*/
+				clonedPart := clonePart(f, part)
+				currentPart.AddPart(clonedPart)
+				if len(part.GetChildren()) > 0 {
+					f.process(part.GetChildren(), clonedPart)
+				}
+			}
+		}
+	}
 }
 
-func clonePart(part Part) Part {
-	/*
-		switch t := part.(type) {
-		case *TmplPart:
-			fmt.Printf("type TmplPart\n")
-		case *File:
-			fmt.Printf("type File\n")
-		default:
-			fmt.Printf("unexpected type %T\n", t)
-		}
-	*/
-	/*
-		      if (part instanceof EditPart) {
-		         newPart = new EditPart(part);
-		      } else if (part instanceof TmplPart) {
-		         newPart = new TmplPart(getTmpl().getId());
-		      } else if (part instanceof ImplPart) {
-		         newPart = new ImplPart(part);
-		      } else {
-				return part
-			}
-	*/
-	return nil
+func clonePart(f *File, part Part) Part {
+	switch t := part.(type) {
+	case *EditPart:
+		return &EditPart{Id: t.GetId()}
+	case *TmplPart:
+		return &TmplPart{Id: f.Tmpl.Id}
+	case *ImplPart:
+		return &ImplPart{Id: t.GetId()}
+	default:
+		return part
+	}
 }

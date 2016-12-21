@@ -17,6 +17,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 )
 
@@ -51,4 +52,18 @@ func (e *EditPart) ResetChildren() {
 
 func (e *EditPart) ToString() string {
 	return fmt.Sprintf("EDIT: id = %s", e.Id)
+}
+
+func (e *EditPart) Write(buf *bytes.Buffer) {
+	buf.WriteString("<!--pvnEditBeg ")
+	buf.WriteString(e.GetId())
+	buf.WriteString("-->")
+
+	for _, part := range e.Children {
+		part.Write(buf)
+	}
+
+	buf.WriteString("<!--pvnEditEnd ")
+	buf.WriteString(e.GetId())
+	buf.WriteString("-->")
 }

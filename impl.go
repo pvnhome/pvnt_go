@@ -17,6 +17,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 )
 
@@ -52,4 +53,18 @@ func (i *ImplPart) ResetChildren() {
 
 func (i *ImplPart) ToString() string {
 	return fmt.Sprintf("IMPL: %s", i.Id)
+}
+
+func (i *ImplPart) Write(buf *bytes.Buffer) {
+	buf.WriteString("<!--pvnImplBeg ")
+	buf.WriteString(i.GetId())
+	buf.WriteString("-->")
+
+	for _, part := range i.Children {
+		part.Write(buf)
+	}
+
+	buf.WriteString("<!--pvnImplEnd ")
+	buf.WriteString(i.GetId())
+	buf.WriteString("-->")
 }
