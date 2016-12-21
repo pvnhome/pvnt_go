@@ -22,7 +22,7 @@ import (
 	"os"
 )
 
-const PVNT_VERSION = "0.9.4 alfa"
+const PVNT_VERSION = "0.9.4 beta"
 
 const (
 	PARTS_INITIAL_CAPACITY = 2
@@ -43,7 +43,7 @@ func show_usage() {
 }
 
 func main() {
-	fmt.Println("PVN Template engine (version", PVNT_VERSION, ")")
+	fmt.Printf("PVN Template engine (version %s)\n", PVNT_VERSION)
 
 	flag.Usage = show_usage
 	flag.Parse()
