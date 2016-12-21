@@ -5,7 +5,7 @@ PVNT_GO
 
 _PVNT is a simple, open source template utility written in Go Language. It is GOLang port for [PVNT](https://github.com/pvnhome/pvnt) written in Java._
 
-* Version: 0.94 (alfa)
+* Version: 0.94 (beta)
 * Author: [pvnhome](mailto:pvnhome@yandex.ru)
 
 ### Features
