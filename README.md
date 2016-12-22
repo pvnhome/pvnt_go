@@ -96,7 +96,7 @@ We can use only three types of tags:
 ### Installation
 
 Installation as simple as 1-2-3:
-* Download _pvnt-x.xx.zip_ and extract it into the directory of your choice.
+* Download _pvnt-x.x.x.zip_ or _pvnt_go-x.x.x-linux-amd64.tar.gz_ and extract it into the directory of your choice.
 * Add the _[PVNT]/bin_ directory to your _PATH_ environment variable.
 * Change _[PVNT]/examples/site/templates/template.html_ file.
 * Execute `pvnt_go` command in _[PVNT]/examples/site_ directory.
@@ -107,3 +107,5 @@ Installation as simple as 1-2-3:
 <https://github.com/pvnhome/pvnt_go>
 * PVNT in Java Source code
 <https://github.com/pvnhome/pvnt>
+* Binary downloads 
+<https://github.com/pvnhome/pvnt_go/releases/tag/v0.9-beta.4>
